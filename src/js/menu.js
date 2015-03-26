@@ -13,12 +13,12 @@
       var y = this.game.height / 2;
 
 
-      this.titleTxt = this.add.bitmapText(x, y, 'minecraftia', 'Example Game');
+      this.titleTxt = this.add.bitmapText(x, y, 'minecraftia', 'Bubble Spel');
       this.titleTxt.align = 'center';
       this.titleTxt.x = this.game.width / 2 - this.titleTxt.textWidth / 2;
 
       y = y + this.titleTxt.height + 5;
-      this.startTxt = this.add.bitmapText(x, y, 'minecraftia', 'START');
+      this.startTxt = this.add.bitmapText(x, y, 'minecraftia', 'HANDEN OMHOOG OM TE STARTEN');
       this.startTxt.align = 'center';
       this.startTxt.x = this.game.width / 2 - this.startTxt.textWidth / 2;
 
@@ -27,23 +27,18 @@
 
     update: function () {
 
-      if (this.bodies && this.bodies.length) {
-        var l = this.bodies.length;
-        for (var i = 0; i < l; ++i) {
-
-          var joints = this.bodies[i];
-
+      if (this.game.bodies && this.game.bodies.length) {
+        var l = this.game.bodies.length;
+        for (var i = 0; i < l; ++i) { 
+          var joints = this.game.bodies[i].Joints;
           if (joints.HandLeft.Position.Y < joints.Head.Position.Y) {
             return;
           }
           if (joints.HandRight.Position.Y < joints.Head.Position.Y) {
             return;
           }
-
         }
-
         this.game.state.start('game');
-
       }
     },
 

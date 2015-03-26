@@ -12,23 +12,32 @@ window.onload = function () {
 
   game.state.start('boot');
 
-
   var connection = new WebSocket('ws://localhost:3333/kinect');
+  
+  function ping() {
+    connection.send('Ping');
+    setTimeout(ping,10000);
+  }
 
   // When the connection is open, send some data to the server
   connection.onopen = function () {
     console.log('Websocket open');
+    connection.send( JSON.stringify( {op:'ping'} ) );
+    ping();
   };
 
   // Log errors
   connection.onerror = function (error) {
     console.log('WebSocket Error ' + error);
   };
+  
+  connection.onclose = function() {
+    console.log('Websocket closed');
+    connection = new WebSocket('ws://localhost:3333/kinect');
+  };
 
   // Log messages from the server
   connection.onmessage = function (e) {
     game.bodies = JSON.parse(e.data);
   };
-
-
 };
