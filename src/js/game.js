@@ -2,7 +2,7 @@
   'use strict';
 
   function Game() {
-    this.kinectScale = 300;
+    this.kinectScale = 500;
   }
 
   Game.prototype = {
@@ -15,7 +15,7 @@
         this.createPlayers();
         
         this.timeDone = 60;
-        this.timeText = this.add.bitmapText(this.game.width - 50, 20, 'minecraftia', '' + (this.timeDone));
+        this.timeText = this.add.bitmapText(this.game.width - 100, 20, 'minecraftia', '' + (this.timeDone));
 
         this.time.events.loop(250, this.spawnBubble, this);
         this.time.events.loop(1000, this.spawnBadBubble, this);
@@ -56,12 +56,12 @@
           score: 0
         });
         
-        hand = this.hands.create(0, 0, 'circle' + i);
+        hand = this.hands.create(0, 0, 'handleft' + i);
         hand.anchor.set(0.5);
         
         this.players[i].leftHand = hand;
         
-        hand = this.hands.create(0, 0, 'circle' + i);
+        hand = this.hands.create(0, 0, 'handright' + i);
         hand.anchor.set(0.5);
         
         this.players[i].rightHand = hand;
@@ -158,6 +158,7 @@
               var trackingids = _.map(this.game.bodies, function(body){ return body.TrackingId; });
               var trackid = null;
               var joints = null;
+              var hasBody = false;
 
             for (var i = 0; i < this.game.maxPlayers; ++i) {
 
@@ -173,6 +174,8 @@
                   console.log('invalid ' + trackid);
                   continue;
                 }
+                
+                hasBody = true;
                 joints = joints.Joints;
 
                 this.players[i].leftHand.x = halfx + joints.HandLeft.Position.X * this.kinectScale;
@@ -181,7 +184,14 @@
                 this.players[i].rightHand.x = halfx + joints.HandRight.Position.X * this.kinectScale;
                 this.players[i].rightHand.y = halfy + joints.HandRight.Position.Y * -this.kinectScale;          
             }
-          } 
+              
+              if(!hasBody) {
+                  this.onGameOver();
+              }
+              
+          } else {
+              this.onGameOver();
+          }
       },
       
       checkBubbleHit: function () {

@@ -20,8 +20,13 @@
     loadResources: function () {
         this.load.image('bubble', 'assets/bubble.png');
         this.load.image('badbubble', 'assets/badbubble.png');
-        this.load.image('circle0', 'assets/circle0.png');
-        this.load.image('circle1', 'assets/circle1.png');
+        
+        this.load.image('handleft0', 'assets/hand-left0.png');
+        this.load.image('handright0', 'assets/hand-right0.png');
+        
+        this.load.image('handleft1', 'assets/hand-left1.png');
+        this.load.image('handright1', 'assets/hand-right1.png');
+        
         this.load.image('start', 'assets/start.png');
         this.load.image('background', 'assets/background.png');
         this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.xml');
