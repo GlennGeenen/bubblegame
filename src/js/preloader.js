@@ -18,9 +18,12 @@
     },
 
     loadResources: function () {
-      this.load.image('bubble', 'assets/bubble.png');
-      this.load.image('circle', 'assets/circle.png');
-      this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.xml');
+        this.load.image('bubble', 'assets/bubble.png');
+        this.load.image('circle0', 'assets/circle0.png');
+        this.load.image('circle1', 'assets/circle1.png');
+        this.load.image('start', 'assets/start.png');
+        this.load.image('background', 'assets/background.png');
+        this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.xml');
     },
 
     create: function () {

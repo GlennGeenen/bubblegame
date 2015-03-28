@@ -2,28 +2,53 @@
   'use strict';
 
   function Menu() {
-    this.titleTxt = null;
-    this.startTxt = null;
   }
 
   Menu.prototype = {
 
     create: function () {
-      var x = this.game.width / 2;
-      var y = this.game.height / 2;
+        
+        this.add.sprite(0, 0, 'background');
+        
+        var x = this.game.width / 2;
 
+        var txt = this.add.bitmapText(x, 100, 'minecraftia', 'Bubble Spel');
+        txt.align = 'center';
+        txt.x = this.game.width / 2 - txt.textWidth / 2;
 
-      this.titleTxt = this.add.bitmapText(x, y, 'minecraftia', 'Bubble Spel');
-      this.titleTxt.align = 'center';
-      this.titleTxt.x = this.game.width / 2 - this.titleTxt.textWidth / 2;
+        txt = this.add.bitmapText(x, 200, 'minecraftia', 'HANDEN OMHOOG OM TE STARTEN');
+        txt.align = 'center';
+        txt.x = this.game.width / 2 - txt.textWidth / 2;
 
-      y = y + this.titleTxt.height + 5;
-      this.startTxt = this.add.bitmapText(x, y, 'minecraftia', 'HANDEN OMHOOG OM TE STARTEN');
-      this.startTxt.align = 'center';
-      this.startTxt.x = this.game.width / 2 - this.startTxt.textWidth / 2;
+        this.add.sprite(this.game.width * 0.5, this.game.height, 'start').anchor.setTo(0.5,1);
+        
+        this.add.sprite(this.game.width * 0.2, this.game.height * 0.5, 'circle0').anchor.set(0.5);
+        this.add.sprite(this.game.width * 0.8, this.game.height * 0.5, 'circle1').anchor.set(0.5);
 
-      this.input.onDown.add(this.onDown, this);
+        if(this.game.scores && this.game.scores.length) {
+            this.addScore();
+        }
+        
+        this.input.onDown.add(this.onDown, this);
     },
+      
+      addScore: function() {
+          
+          console.log('addScores');
+          
+        var txt = this.add.bitmapText(this.game.width * 0.2, 360, 'minecraftia', '' + this.game.scores[0]);
+        txt.align = 'center';
+        txt.x -= txt.textWidth / 2;
+          
+        if(this.game.scores.length > 1) {
+            
+            txt = this.add.bitmapText(this.game.width * 0.8, 360, 'minecraftia', '' + this.game.scores[1]);
+            txt.align = 'center';
+            txt.x -= txt.textWidth / 2;
+
+        }
+          
+      },
 
     update: function () {
 
@@ -38,6 +63,7 @@
             return;
           }
         }
+        this.game.maxPlayers = l;
         this.game.state.start('game');
       }
     },
