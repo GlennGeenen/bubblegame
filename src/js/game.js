@@ -2,7 +2,7 @@
   'use strict';
 
   function Game() {
-    
+    this.kinectScale = 300;
   }
 
   Game.prototype = {
@@ -13,8 +13,12 @@
 
         this.createBubbles();
         this.createPlayers();
+        
+        this.timeDone = 60;
+        this.timeText = this.add.bitmapText(this.game.width - 50, 20, 'minecraftia', '' + (this.timeDone));
 
         this.time.events.loop(250, this.spawnBubble, this);
+        this.time.events.loop(1000, this.spawnBadBubble, this);
 
     },
 
@@ -23,12 +27,21 @@
       this.bubbles = this.add.group();
 
       var bubble = null;
+        var i;
 
-      for (var i = 0; i < 50; ++i) {
+      for (i = 0; i < 50; ++i) {
         bubble = this.bubbles.create(0, 0, 'bubble');
         bubble.anchor.set(0.5);
         bubble.kill();
       }
+        
+        this.badbubbles = this.add.group();
+        
+        for (i = 0; i < 10; ++i) {
+            bubble = this.badbubbles.create(0, 0, 'badbubble');
+            bubble.anchor.set(0.5);
+            bubble.kill();
+        }
 
     },
     
@@ -92,85 +105,120 @@
         tweenPos.start();
       }
     },
+      
+    spawnBadBubble: function spawnCar() {
+        
+        this.timeText.text = --this.timeDone + '';
+        if(this.timeDone <= 0) {
+            return this.onGameOver();
+        }
+        
+      var bubble = this.badbubbles.getFirstDead();
+
+      if (bubble) {
+
+        bubble.x = Math.random() * this.game.width;
+        bubble.y = -100;
+
+        var tweenPos = this.add.tween(bubble);
+        tweenPos.to({
+          x: Math.floor(Math.random() * (this.game.width * 2) - (this.game.width * 0.5)),
+          y: this.game.height + 150
+        }, 5000, Phaser.Easing.Sinusoidal.InOut);
+
+        tweenPos.onComplete.add(function () {
+          bubble.kill();
+        });
+
+        bubble.revive();
+
+        tweenPos.start();
+      }
+    },
 
     update: function () {
 
-      if (this.game.bodies && this.game.bodies.length) {
+        this.updateKinect();
 
-        var halfx = this.game.width * 0.5;
-        var halfy = this.game.height * 0.5;
-          
-          var trackingids = _.map(this.game.bodies, function(body){ return body.TrackingId; });
-          
-          var trackid = null;
-          var joints = null;
-        
-          // Check hit bubble
-        for (var i = 0; i < this.game.maxPlayers; ++i) {
-            
-            trackid = this.players[i].trackid;
-      
-            if (!_.contains(trackingids, trackid)) {
-              console.log('no ' + trackid);
-              continue;
-            }
-            
-            joints = _.find(this.game.bodies, function(body){ return body.TrackingId === trackid; });
-            if(!joints) {
-              console.log('invalid ' + trackid);
-              continue;
-            }
-            joints = joints.Joints;
-          
-
-            this.bubbles.forEachAlive(function (bubble) {
-              
-              var leftx = halfx + joints.HandLeft.Position.X * 200;
-              var lefty = halfy + joints.HandLeft.Position.Y * -200;
-              
-              var rightx = halfx + joints.HandRight.Position.X * 200;
-              var righty = halfy + joints.HandRight.Position.Y * -200;
-              
-              this.players[i].leftHand.x = leftx;
-              this.players[i].leftHand.y = lefty;
-              
-              this.players[i].rightHand.x = rightx;
-              this.players[i].rightHand.y = righty;
-
-              if (this.physics.arcade.distanceToXY(bubble, leftx, lefty) < 75 ||
-                this.physics.arcade.distanceToXY(bubble, rightx, righty) < 75) {
-
-                this.tweens.removeFrom(bubble);
-                bubble.kill();
-                
-                this.players[i].scoreText.text = 'P' + (i+1) + ': ' + (++this.players[i].score);
-                  
-                  if(this.players[i].score >= 20) {
-                      this.onGameOver();
-                  }
-
-              }
-
-            }, this);
-          
-        }
-
-      } else {
-        var pointer = this.input.activePointer;
-
-        this.bubbles.forEachAlive(function (bubble) {
-
-          if (this.physics.arcade.distanceToPointer(bubble, pointer) < 50) {
-            this.tweens.removeFrom(bubble);
-            bubble.kill();
-
-            ++this.scores[0];
-          }
-
-        }, this);
-      }
+        this.checkBubbleHit();
 
     },
+      
+      findBody: function (trackid) {
+          return _.find(this.game.bodies, function(body){ return body.TrackingId === trackid; });
+      },
+      
+      updateKinect: function () {
+          
+          if (this.game.bodies && this.game.bodies.length) {
+
+            var halfx = this.game.width * 0.5;
+            var halfy = this.game.height * 0.5;
+
+              var trackingids = _.map(this.game.bodies, function(body){ return body.TrackingId; });
+              var trackid = null;
+              var joints = null;
+
+            for (var i = 0; i < this.game.maxPlayers; ++i) {
+
+                trackid = this.players[i].trackid;
+
+                if (!_.contains(trackingids, trackid)) {
+                  console.log('no ' + trackid);
+                  continue;
+                }
+
+                joints = this.findBody(trackid);
+                if(!joints) {
+                  console.log('invalid ' + trackid);
+                  continue;
+                }
+                joints = joints.Joints;
+
+                this.players[i].leftHand.x = halfx + joints.HandLeft.Position.X * this.kinectScale;
+                this.players[i].leftHand.y = halfy + joints.HandLeft.Position.Y * -this.kinectScale;
+
+                this.players[i].rightHand.x = halfx + joints.HandRight.Position.X * this.kinectScale;
+                this.players[i].rightHand.y = halfy + joints.HandRight.Position.Y * -this.kinectScale;          
+            }
+          } 
+      },
+      
+      checkBubbleHit: function () {
+          
+          this.badbubbles.forEachAlive(function (bubble) {
+            
+            for (var i = 0; i < this.game.maxPlayers; ++i) {
+                if (this.physics.arcade.distanceToXY(bubble, this.players[i].leftHand.x, this.players[i].leftHand.y) < 75 ||
+                    this.physics.arcade.distanceToXY(bubble, this.players[i].rightHand.x, this.players[i].rightHand.y) < 75) {
+                    this.tweens.removeFrom(bubble);
+                    bubble.kill();
+                    this.players[i].scoreText.text = 'P' + (i+1) + ': ' + (this.players[i].score -= 5);
+                }
+            }
+
+        }, this);
+          
+          this.bubbles.forEachAlive(function (bubble) {
+            
+            for (var i = 0; i < this.game.maxPlayers; ++i) {
+
+                if (this.physics.arcade.distanceToXY(bubble, this.players[i].leftHand.x, this.players[i].leftHand.y) < 75 ||
+                    this.physics.arcade.distanceToXY(bubble, this.players[i].rightHand.x, this.players[i].rightHand.y) < 75) {
+
+                    this.tweens.removeFrom(bubble);
+                    bubble.kill();
+
+                    this.players[i].scoreText.text = 'P' + (i+1) + ': ' + (++this.players[i].score);
+
+                    if(this.players[i].score >= 20) {
+                        this.onGameOver();
+                    }
+                }
+            }
+
+        }, this);
+      },
       
       onGameOver: function () {
 

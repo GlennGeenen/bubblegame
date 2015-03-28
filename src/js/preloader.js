@@ -19,6 +19,7 @@
 
     loadResources: function () {
         this.load.image('bubble', 'assets/bubble.png');
+        this.load.image('badbubble', 'assets/badbubble.png');
         this.load.image('circle0', 'assets/circle0.png');
         this.load.image('circle1', 'assets/circle1.png');
         this.load.image('start', 'assets/start.png');

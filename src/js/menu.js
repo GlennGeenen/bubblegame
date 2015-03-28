@@ -29,7 +29,12 @@
             this.addScore();
         }
         
-        this.input.onDown.add(this.onDown, this);
+        // Dont update for 3 seconds
+        this.game.paused = true;
+        var _this = this;
+        setTimeout(function() {
+            _this.game.paused = false;
+        }, 3000);
     },
       
       addScore: function() {
@@ -51,25 +56,21 @@
       },
 
     update: function () {
-
-      if (this.game.bodies && this.game.bodies.length) {
-        var l = this.game.bodies.length;
-        for (var i = 0; i < l; ++i) { 
-          var joints = this.game.bodies[i].Joints;
-          if (joints.HandLeft.Position.Y < joints.Head.Position.Y) {
-            return;
-          }
-          if (joints.HandRight.Position.Y < joints.Head.Position.Y) {
-            return;
-          }
+        
+        if (this.game.bodies && this.game.bodies.length) {
+            var l = this.game.bodies.length;
+            for (var i = 0; i < l; ++i) { 
+                var joints = this.game.bodies[i].Joints;
+                if (joints.HandLeft.Position.Y < joints.Head.Position.Y) {
+                    return;
+                }
+                if (joints.HandRight.Position.Y < joints.Head.Position.Y) {
+                    return;
+                }
+            }
+            this.game.maxPlayers = l;
+            this.game.state.start('game');
         }
-        this.game.maxPlayers = l;
-        this.game.state.start('game');
-      }
-    },
-
-    onDown: function () {
-      this.game.state.start('game');
     }
   };
 
