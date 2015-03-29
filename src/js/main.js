@@ -40,4 +40,6 @@ window.onload = function () {
   connection.onmessage = function (e) {
     game.bodies = JSON.parse(e.data);
   };
+    
+    "#FFFFFF"
 };
